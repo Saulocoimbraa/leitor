@@ -140,16 +140,21 @@ const ProcessingModule = (() => {
             
             // Simula processamento rápido
             setTimeout(() => {
-                // Gera respostas aleatórias (em uma aplicação real, isso seria o OCR)
-                const numQuestions = parseInt(elements.numQuestions.value);
-                const numOptions = parseInt(elements.numOptions.value);
-                const options = ['A', 'B', 'C', 'D', 'E'];
-                
-                const detectedAnswers = [];
-                for (let i = 0; i < numQuestions; i++) {
-                    const randomAnswer = options[Math.floor(Math.random() * numOptions)];
-                    detectedAnswers.push(randomAnswer);
-                }
+    // Simulação de OCR - substituído pelo real
+    extractAnswersWithOCR(file.file).then(detectedAnswers => {
+        results.push({
+            fileName: file.name,
+            student: file.student,
+            answers: detectedAnswers
+        });
+
+        files[fileIndex].processed = true;
+        resolve();
+        }).catch(error => {
+        console.error("Erro de OCR:", error);
+        resolve(); // ainda assim resolve para não travar a fila
+        });
+       }, 300);
                 
                 // Armazena resultados
                 results.push({
@@ -215,6 +220,30 @@ const ProcessingModule = (() => {
     
     const updateStatus = (message, type = 'info') => {
         document.getElementById('statusText').textContent = message;
+
+const extractAnswersWithOCR = async (file) => {
+    const imageURL = URL.createObjectURL(file);
+    const { data: { text } } = await Tesseract.recognize(imageURL, 'eng', {
+        logger: m => console.log(m)
+    });
+
+    // Suponha que as respostas estejam em formato como "1:A 2:C 3:B ..."
+    const answers = [];
+    const regex = /\d+[:\-]?\s*([A-E])/gi;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+        answers.push(match[1].toUpperCase());
+    }
+
+    URL.revokeObjectURL(imageURL);
+
+    // Preenche com '?' se tiver menos respostas do que o esperado
+    const expected = parseInt(elements.numQuestions.value);
+    while (answers.length < expected) answers.push('?');
+
+    return answers.slice(0, expected);
+};
+
     };
     
     const updateProgress = (percent) => {
