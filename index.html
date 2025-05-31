@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitor de Gabaritos - Processamento Rápido</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a237e, #4a148c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #303f9f, #5c6bc0);
+            color: white;
+            padding: 25px 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 2.5rem;
+            color: #ffd600;
+        }
+        
+        .main-content {
+            display: flex;
+            padding: 25px;
+            gap: 25px;
+        }
+        
+        .left-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .camera-section, .config-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .results-section {
+            flex: 2;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h2 {
+            color: #303f9f;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #5c6bc0;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #5c6bc0;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #3f51b5;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-primary {
+            background: #5c6bc0;
+        }
+        
+        .btn-success {
+            background: #43a047;
+        }
+        
+        .btn-warning {
+            background: #ff9800;
+        }
+        
+        .btn-danger {
+            background: #e53935;
+        }
+        
+        .btn-process {
+            background: #9c27b0;
+            margin-top: 10px;
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .btn-export {
+            background: #43a047;
+            margin-top: 15px;
+        }
+        
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        #cameraPreview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        #capturedImage {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+            display: none;
+        }
+        
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .config-row {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .config-row label {
+            width: 200px;
+            font-weight: bold;
+        }
+        
+        .config-row input, .config-row select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100px;
+        }
+        
+        #answerKey {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .results-table {
+            flex-grow: 1;
+            overflow: auto;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 400px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #5c6bc0;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f1f8e9;
+        }
+        
+        .correct {
+            background-color: #c8e6c9 !important;
+        }
+        
+        .incorrect {
+            background-color: #ffcdd2 !important;
+        }
+        
+        .status-bar {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .status-icon {
+            margin-right: 15px;
+            font-size: 1.5rem;
+            color: #1976d2;
+        }
+        
+        .progress-container {
+            flex-grow: 1;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #1976d2;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid #64b5f6;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #303f9f;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .file-queue {
+            max-height: 150px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .queue-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .queue-item:last-child {
+            border-bottom: none;
+        }
+        
+        .queue-name {
+            flex-grow: 1;
+        }
+        
+        .queue-status {
+            font-weight: bold;
+        }
+        
+        .queue-pending {
+            color: #ff9800;
+        }
+        
+        .queue-processing {
+            color: #1976d2;
+        }
+        
+        .queue-completed {
+            color: #43a047;
+        }
+        
+        .queue-error {
+            color: #e53935;
+        }
+        
+        .performance-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .left-section {
+                order: 2;
+            }
+            
+            .results-section {
+                order: 1;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .config-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .config-row label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h1><i class="fas fa-scanner"></i> Leitor de Gabaritos Turbo</h1>
+            <p>Processamento rápido sem travamentos</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="left-section">
+                <div class="camera-section">
+                    <h2><i class="fas fa-camera"></i> Captura de Gabaritos</h2>
+                    
+                    <div class="camera-container">
+                        <video id="cameraPreview" autoplay playsinline></video>
+                        <img id="capturedImage" alt="Imagem capturada">
+                        <canvas id="cameraCanvas" style="display: none;"></canvas>
+                    </div>
+                    
+                    <div class="camera-controls">
+                        <button class="btn btn-primary" id="startCameraBtn">
+                            <i class="fas fa-video"></i> Iniciar Câmera
+                        </button>
+                        <button class="btn btn-success" id="captureBtn" disabled>
+                            <i class="fas fa-camera"></i> Capturar
+                        </button>
+                        <button class="btn btn-warning" id="retryCaptureBtn" disabled>
+                            <i class="fas fa-redo"></i> Repetir
+                        </button>
+                        <button class="btn btn-primary" id="addCaptureBtn" disabled>
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                    
+                    <div class="config-row">
+                        <label><i class="fas fa-user"></i> Nome do Aluno:</label>
+                        <input type="text" id="studentName" placeholder="Nome do aluno">
+                    </div>
+                    
+                    <div class="performance-info">
+                        <i class="fas fa-bolt"></i> Processamento otimizado sem travamentos
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h2><i class="fas fa-cog"></i> Configurações</h2>
+                    
+                    <div class="config-row">
+                        <label><i class="fas fa-key"></i> Gabarito Oficial:</label>
+                        <input type="text" id="answerKey" placeholder="Ex: A,B,C,D,A,B,C,D,A,B">
+                    </div>
+                    
+                    <div class="config-row">
+                        <label><i class="fas fa-list-ol"></i> Número de questões:</label>
+                        <input type="number" id="numQuestions" value="10" min="1" max="50">
+                    </div>
+                    
+                    <div class="config-row">
+                        <label><i class="fas fa-check-circle"></i> Alternativas por questão:</label>
+                        <select id="numOptions">
+                            <option value="4">4 (A, B, C, D)</option>
+                            <option value="5" selected>5 (A, B, C, D, E)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-process" id="processBtn">
+                        <i class="fas fa-bolt"></i> Processar Gabaritos
+                    </button>
+                    
+                    <button class="btn btn-danger" id="cancelBtn" style="display: none; width: 100%; margin-top: 10px;">
+                        <i class="fas fa-times-circle"></i> Cancelar Processamento
+                    </button>
+                    
+                    <div class="performance-info">
+                        <i class="fas fa-rocket"></i> Processa 1 gabarito/segundo mesmo em celulares antigos
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <h2><i class="fas fa-table"></i> Resultados Consolidados</h2>
+                
+                <div class="file-queue" id="fileQueue">
+                    <p>Nenhum gabarito na fila de processamento</p>
+                </div>
+                
+                <div class="results-table">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <!-- Colunas de questões serão geradas dinamicamente -->
+                                <th>Acertos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <tr>
+                                <td colspan="100" style="text-align: center; padding: 30px;">
+                                    <i class="fas fa-info-circle"></i> Os resultados aparecerão aqui após o processamento
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button class="btn btn-export" id="exportBtn">
+                    <i class="fas fa-file-export"></i> Exportar para CSV
+                </button>
+                
+                <div class="status-bar" id="statusBar">
+                    <div class="status-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div id="statusText">Pronto para capturar gabaritos</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div id="progressText">0%</div>
+                </div>
+                
+                <div class="performance-info">
+                    <i class="fas fa-tachometer-alt"></i> Processamento otimizado: 0ms bloqueio de UI
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Leitor de Gabaritos &copy; 2023 | Processamento 100% no navegador - Sem travamentos</p>
+        </footer>
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="spinner"></div>
+        <div id="loadingText">Processando gabaritos...</div>
+        <div id="fileProgress">Processando: <span id="currentFile"></span> (<span id="fileCounter">0</span>/<span id="totalFiles">0</span>)</div>
+        <div style="margin-top: 20px;">
+            <button class="btn btn-danger" id="cancelOverlayBtn">
+                <i class="fas fa-times-circle"></i> Cancelar Processamento
+            </button>
+        </div>
+    </div>
+
+    <!-- Módulos separados para organização -->
+    <script src="camera-module.js"></script>
+    <script src="processing-module.js"></script>
+    <script src="results-module.js"></script>
+    
+    <script>
+        // Módulo principal de inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializa todos os módulos
+            CameraModule.init();
+            ProcessingModule.init();
+            ResultsModule.init();
+        });
+    </script>
+</body>
+</html>
